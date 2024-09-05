@@ -2,7 +2,7 @@ import threading
 import queue
 import time
 import random
-
+import numpy as np
 
 class Vehicle(threading.Thread):
     def __init__(self, vehicle_id, heartbeat_queue, congestion_queue, max_window_size=5):
@@ -17,6 +17,7 @@ class Vehicle(threading.Thread):
         self.speed = random.uniform(40, 60)  # Initial speed in km/h
         self.synchronized = False
         self.running = True
+        self.data_packets = []  # List to hold data packets
 
     def run(self):
         while self.running:
@@ -45,7 +46,7 @@ class Vehicle(threading.Thread):
             self.adjust_speed()
 
     def handle_congestion_control(self):
-        # Simulate sending data with congestion control
+        # Simulate sending data with congestion control using RLNC
         if self.cwnd < self.ssthresh:
             # Slow start phase
             self.cwnd *= 2
@@ -57,8 +58,10 @@ class Vehicle(threading.Thread):
 
         self.cwnd = min(self.cwnd, self.max_window_size)
 
-        # Simulate sending packets
-        for _ in range(self.cwnd):
+        # Generate and encode packets using RLNC
+        encoded_packets = self.rlnc_encode(self.data_packets, self.cwnd)
+
+        for packet in encoded_packets:
             if random.choice([True, False]):  # Simulate packet loss
                 print(f"Vehicle {self.vehicle_id}: Packet loss detected.")
                 self.ssthresh = max(self.cwnd // 2, 1)
@@ -68,6 +71,19 @@ class Vehicle(threading.Thread):
         # Simulate feedback to adjust congestion window size
         self.congestion_queue.put(self.cwnd)
 
+    def rlnc_encode(self, packets, num_packets):
+        """ Encode packets using RLNC. """
+        if len(packets) == 0:
+            return []
+
+        num_original = len(packets)
+        encoded_packets = []
+        for _ in range(num_packets):
+            coefficients = np.random.randint(0, 10, size=num_original)
+            encoded_packet = sum(coeff * packet for coeff, packet in zip(coefficients, packets))
+            encoded_packets.append(encoded_packet)
+        return encoded_packets
+
     def adjust_speed(self):
         if not self.synchronized:
             self.speed += random.uniform(-5, 5)
@@ -76,7 +92,6 @@ class Vehicle(threading.Thread):
 
     def stop(self):
         self.running = False
-
 
 class LeadVehicle:
     def __init__(self, heartbeat_queue):
@@ -103,8 +118,6 @@ class LeadVehicle:
         self.running = False
         self.thread.join()  # Wait for the thread to finish
 
-
-# Simulation setup
 def run_simulation():
     heartbeat_queue = queue.Queue()
     congestion_queue = queue.Queue()
@@ -128,7 +141,6 @@ def run_simulation():
 
         # Stop the lead vehicle's heartbeat thread
         lead_vehicle.stop()
-
 
 # Run the simulation
 run_simulation()
