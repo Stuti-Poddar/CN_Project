@@ -12,7 +12,7 @@ Vehicle Platooning with Sliding Window and RLNC Technique combines flow control 
 To run the main code, run the following command
 
 ```bash
-  python vehicleplatoon.y
+  python vehiclePlatoon.y
 ```
 
 ## References:
