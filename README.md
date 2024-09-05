@@ -7,10 +7,19 @@ Vehicle Platooning with Sliding Window and RLNC Technique combines flow control 
  1. Congestion Control and Avoidance using Additive Increase and Multiplicative Decrease Algorithm.
  2. Synchronization of communication between vehicles.
 
-## References
+## Running the code:
+
+To run the main code, run the following command
+
+```bash
+  python vehicleplatoon.y
+```
+
+## References:
 Base paper:
 [Vehicle Platooning with Sliding Window RLNC Technique](https://drive.google.com/file/d/132Tv154_KG6EUpcnoUk2YeHps87DvKGl/view?usp=drivesdk)
 
-## Contributers
+
+## Contributers:
 - [Stuti Poddar](https://github.com/Stuti-Poddar)
 - [Gauri Sankaran N.](https://github.com/GSuser8)
