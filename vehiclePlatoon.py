@@ -14,10 +14,10 @@ class Vehicle(threading.Thread):
         self.ssthresh = max_window_size // 2  # Slow start threshold
         self.max_window_size = max_window_size
         self.position = 0
-        self.speed = random.uniform(40, 60)  # Initial speed in km/h
+        self.speed = random.uniform(40, 60) 
         self.synchronized = False
         self.running = True
-        self.data_packets = []  # List to hold data packets
+        self.data_packets = [] 
 
     def run(self):
         while self.running:
@@ -33,14 +33,16 @@ class Vehicle(threading.Thread):
                 print(f"Vehicle {self.vehicle_id}: No heartbeat received. Trying to resynchronize.")
                 self.adjust_speed()
 
-            time.sleep(1)
+            # Update position based on speed
+            self.adjust_position()
+
+            time.sleep(1)  # Time step for simulation, 1 second
 
     def process_heartbeat(self, heartbeat):
         if heartbeat["sync"]:
             print(f"Vehicle {self.vehicle_id}: Received sync heartbeat. Adjusting speed and position.")
             self.synchronized = True
             self.speed = heartbeat["speed"]
-            self.position += self.speed
         else:
             print(f"Vehicle {self.vehicle_id}: Non-sync heartbeat. Adjusting speed.")
             self.adjust_speed()
@@ -86,9 +88,14 @@ class Vehicle(threading.Thread):
 
     def adjust_speed(self):
         if not self.synchronized:
-            self.speed += random.uniform(-5, 5)
+            self.speed += random.uniform(-5, 5)  # Adjust speed randomly by a small amount
             print(f"Vehicle {self.vehicle_id}: Adjusting speed to {self.speed:.2f} km/h to try to resync.")
-        self.position += self.speed
+
+    def adjust_position(self):
+        # Update position based on speed
+        time_step = 1  # Time step in seconds
+        self.position += self.speed * (time_step / 3600)  
+        print(f"Vehicle {self.vehicle_id}: Position updated to {self.position:.2f} km.")
 
     def stop(self):
         self.running = False
@@ -96,14 +103,14 @@ class Vehicle(threading.Thread):
 class LeadVehicle:
     def __init__(self, heartbeat_queue):
         self.heartbeat_queue = heartbeat_queue
-        self.speed = 50  # Lead vehicle speed
-        self.sync_interval = 3  # Heartbeat interval in seconds
-        self.running = True  # Control flag for stopping the thread
+        self.speed = 50  
+        self.sync_interval = 3  
+        self.running = True  
 
     def send_heartbeat(self):
         while self.running:
             heartbeat = {
-                "sync": True,  # Synchronization message
+                "sync": True,  
                 "speed": self.speed
             }
             print("Lead Vehicle: Sending sync heartbeat.")
@@ -132,15 +139,13 @@ def run_simulation():
         vehicle.start()
 
     try:
-        # Run the simulation for a certain period
-        time.sleep(20)
+        
+        time.sleep(5)
     finally:
-        # Stop all vehicles after the simulation ends
+        
         for vehicle in vehicles:
             vehicle.stop()
 
-        # Stop the lead vehicle's heartbeat thread
         lead_vehicle.stop()
 
-# Run the simulation
 run_simulation()
